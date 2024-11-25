@@ -85,20 +85,26 @@ type User struct {
 }
 
 type Error struct {
-	ID                string `json:"id"`
-	ErrorID           string `json:"errorId"`
-	ExceptionClass    string `json:"exceptionClass"`
-	Message           string `json:"message"`
-	Context           string `json:"context"`
-	FirstReceived     string `json:"firstReceived"`
-	ReceivedAt        string `json:"receivedAt"`
-	RequestURL        string `json:"requestUrl,omitempty"`
-	AssignedUserID    string `json:"assignedUserId,omitempty"`
-	AssignedUserEmail string `json:"assignedUserEmail,omitempty"`
-	URL               string `json:"url"`
-	Severity          string `json:"severity"`
-	Status            string `json:"status"`
-	Unhandled         bool   `json:"unhandled"`
+	ID                string   `json:"id"`
+	ErrorID           string   `json:"errorId"`
+	ExceptionClass    string   `json:"exceptionClass"`
+	Message           string   `json:"message"`
+	Context           string   `json:"context"`
+	FirstReceived     string   `json:"firstReceived"`
+	ReceivedAt        string   `json:"receivedAt"`
+	RequestURL        string   `json:"requestUrl,omitempty"`
+	AssignedUserID    string   `json:"assignedUserId,omitempty"`
+	AssignedUserEmail string   `json:"assignedUserEmail,omitempty"`
+	URL               string   `json:"url"`
+	Severity          string   `json:"severity"`
+	Status            string   `json:"status"`
+	Unhandled         bool     `json:"unhandled"`
+	App               ErrorApp `json:"app"`
+}
+
+type ErrorApp struct {
+	ReleaseStage string `json:"releaseStage"`
+	Type         string `json:"type"`
 }
 
 type Release struct {

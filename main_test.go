@@ -34,10 +34,14 @@ func TestFormatMessage(t *testing.T) {
 					ErrorID:        "56b9ca7f17025f8756f69054",
 					ExceptionClass: "NoMethodError",
 					Message:        "Unable to connect to database.",
+					App: ErrorApp{
+						ReleaseStage: "production",
+						Type:         "my app",
+					},
 				},
 			},
-			templateStr: "[{{ .Trigger.Message }}] Error: {{.Error.Message}} from {{.Account.Name}}",
-			expected:    "[1000th exception] Error: Unable to connect to database. from My Company",
+			templateStr: "[{{ .Error.App.ReleaseStage }}, {{ .Error.App.Type }}, {{ .Trigger.Message }}] Error: {{.Error.Message}} from {{.Account.Name}}",
+			expected:    "[production, my app, 1000th exception] Error: Unable to connect to database. from My Company",
 			expectError: false,
 		},
 		{
