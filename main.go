@@ -41,7 +41,7 @@ type Trigger struct {
 type Config struct {
 	Telegram       TelegramConfig `yaml:"telegram"`
 	Triggers       TriggersConfig `yaml:"triggers"`
-	CommonTemplate string
+	CommonTemplate string `yaml:"commonTemplate"`
 }
 
 type BugsnagResponse struct {
