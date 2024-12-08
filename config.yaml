@@ -1,48 +1,17 @@
 telegram:
   chatId: "chatId"
   apiToken: "apiToken"
+commonTemplate: >
+  [#{{ .Error.App.ReleaseStage }}, #{{ .Error.App.Type }}, {{ .Trigger.Message }}]
+
+  Message: {{ .Error.Message }}
+
+  URL: {{ .Error.URL }}
 triggers:
   firstException:
-    enabled: true
     template: >
-      First Exception for {{ response.Account.Name }} company
-  errorEventFrequency:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  powerTen:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  exception:
-    enabled: true
-    template: >
-      First Exception {{ .Account.ID }}
-  reopened:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  projectSpiking:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  release:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  projectSamplingStarted:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  projectApproachingRateLimit:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  comment:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
-  errorStateManualChange:
-    enabled: true
-    template: >
-      First Exception for {{ response.Account.Name }} company
+      [#{{ .Error.App.ReleaseStage }}, #{{ .Error.App.Type }}, {{ .Trigger.Message }}]
+
+      Message: {{ .Error.Message }}
+
+      URL: {{ .Error.URL }}
