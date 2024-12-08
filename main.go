@@ -35,13 +35,13 @@ type TriggersConfig struct {
 }
 
 type Trigger struct {
-	Enabled  bool   `yaml:"enabled"`
 	Template string `yaml:"template,omitempty"`
 }
 
 type Config struct {
-	Telegram TelegramConfig `yaml:"telegram"`
-	Triggers TriggersConfig `yaml:"triggers"`
+	Telegram       TelegramConfig `yaml:"telegram"`
+	Triggers       TriggersConfig `yaml:"triggers"`
+	CommonTemplate string
 }
 
 type BugsnagResponse struct {
@@ -156,20 +156,14 @@ func bugsnagWebhooksHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		trigger, err := checkTrigger(jsonBody.Trigger, config.Triggers)
+		template, err := takeTemplate(jsonBody.Trigger, config)
 		if err != nil {
 			fmt.Printf("%+v\n", err)
 			http.Error(w, "Invalid Config", http.StatusInternalServerError)
 			return
 		}
 
-		if !trigger.Enabled {
-			w.WriteHeader(http.StatusOK)
-			// add log
-			return
-		}
-
-		message, err := formatMessage(jsonBody, trigger.Template)
+		message, err := formatMessage(jsonBody, template)
 		if err != nil {
 			http.Error(w, "Invalid template format", http.StatusInternalServerError)
 			return
@@ -188,7 +182,7 @@ func bugsnagWebhooksHandler(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
-func checkTrigger(triggerInfo TriggerInfo, triggersConfig TriggersConfig) (Trigger, error) {
+func takeTemplate(triggerInfo TriggerInfo, config Config) (string, error) {
 	validTriggerTypes := map[string]string{
 		"FirstException":              "FirstException",
 		"ErrorEventFrequency":         "ErrorEventFrequency",
@@ -204,13 +198,18 @@ func checkTrigger(triggerInfo TriggerInfo, triggersConfig TriggersConfig) (Trigg
 
 	triggerType := capitalizeFirstLetter(triggerInfo.Type)
 	if validType, exists := validTriggerTypes[triggerType]; exists {
-		trigger := reflect.ValueOf(triggersConfig).FieldByName(validType)
+		trigger := reflect.ValueOf(config.Triggers).FieldByName(validType)
 		if trigger.IsValid() {
-			return trigger.Interface().(Trigger), nil
+			template := trigger.Interface().(Trigger).Template
+			if template != "" {
+				return template, nil
+			}
 		}
+
+		return config.CommonTemplate, nil
 	}
 
-	return Trigger{}, fmt.Errorf("invalid trigger type: %s", triggerInfo.Type)
+	return "", fmt.Errorf("invalid trigger type: %s", triggerInfo.Type)
 }
 
 func capitalizeFirstLetter(str string) string {

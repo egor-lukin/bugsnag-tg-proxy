@@ -73,23 +73,48 @@ func TestFormatMessage(t *testing.T) {
 	}
 }
 
-func TestCheckTrigger(t *testing.T) {
+func TestTakeTemplate(t *testing.T) {
 	tests := []struct {
-		name           string
-		triggerInfo    TriggerInfo
-		triggersConfig TriggersConfig
-		expected       Trigger
-		expectError    bool
+		name        string
+		triggerInfo TriggerInfo
+		config      Config
+		expected    string
+		expectError bool
 	}{
 		{
-			name: "Valid trigger type",
+			name: "Valid trigger type and defined specific template",
 			triggerInfo: TriggerInfo{
 				Type: "exception", // Updated to match the casing
 			},
-			triggersConfig: TriggersConfig{
-				Exception: Trigger{Enabled: true, Template: "Template for exception"},
+			config: Config{
+				Telegram: TelegramConfig{
+					ChatID:   "chatId",
+					ApiToken: "apiToken",
+				},
+				Triggers: TriggersConfig{
+					Exception: Trigger{Template: "specific template"},
+				},
+				CommonTemplate: "common template",
 			},
-			expected:    Trigger{Enabled: true, Template: "Template for exception"},
+			expected:    "specific template",
+			expectError: false,
+		},
+		{
+			name: "Valid trigger type and does not defined specific template",
+			triggerInfo: TriggerInfo{
+				Type: "exception",
+			},
+			config: Config{
+				Telegram: TelegramConfig{
+					ChatID:   "chatId",
+					ApiToken: "apiToken",
+				},
+				Triggers: TriggersConfig{
+					Exception: Trigger{Template: ""},
+				},
+				CommonTemplate: "common template",
+			},
+			expected:    "common template",
 			expectError: false,
 		},
 		{
@@ -97,21 +122,30 @@ func TestCheckTrigger(t *testing.T) {
 			triggerInfo: TriggerInfo{
 				Type: "new_trigger_type",
 			},
-			triggersConfig: TriggersConfig{},
-			expected:       Trigger{},
-			expectError:    true,
+			config: Config{
+				Telegram: TelegramConfig{
+					ChatID:   "chatId",
+					ApiToken: "apiToken",
+				},
+				Triggers: TriggersConfig{
+					Exception: Trigger{Template: "specific template"},
+				},
+				CommonTemplate: "common template",
+			},
+			expected:    "",
+			expectError: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := checkTrigger(tt.triggerInfo, tt.triggersConfig)
+			result, err := takeTemplate(tt.triggerInfo, tt.config)
 			if (err != nil) != tt.expectError {
-				t.Errorf("checkTrigger() error = %v, expectError %v", err, tt.expectError)
+				t.Errorf("takeTemplate() error = %v, expectError %v", err, tt.expectError)
 				return
 			}
 			if result != tt.expected {
-				t.Errorf("checkTrigger() = %v, want %v", result, tt.expected)
+				t.Errorf("takeTemplate() = %v, want %v", result, tt.expected)
 			}
 		})
 	}
