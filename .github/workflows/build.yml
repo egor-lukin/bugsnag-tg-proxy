@@ -1,13 +1,37 @@
 name: Build
 
-on: push
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.22.3'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test
+
   build-and-push-image:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,7 +53,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push api
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.22.3'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test
+
+      - name: Build and push API
         uses: docker/build-push-action@v2
         with:
           context: .
